@@ -17,7 +17,8 @@ export default function BackgroundBeamsDemo() {
   const loading = status === "loading";
   const router = useRouter();
   const [id, setId] = useState(null);
-
+  console.log("🟢 Session:", session); 
+  console.log("🟡 Status:", status); 
   useEffect(() => {
     if (session && session.user && !id) {
       setId(session.user._id || session.user.id);
@@ -32,7 +33,7 @@ export default function BackgroundBeamsDemo() {
     if (!loading && (!session || !session.user)) {
       router.push("/login");
     }
-  }, [loading, session, router]); // Dependencies to ensure it only runs when loading or session changes
+  }, [loading, session, router]); 
 
   if (!mounted || loading) {
     return <div>Loading...</div>;

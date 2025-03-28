@@ -1,7 +1,6 @@
 import connectDB from "@/utils/db";
 import User from "@/utils/models/user";
 import Stock from "@/utils/models/stock";
-import Notification from "@/utils/models/notification";
 import bcrypt from "bcryptjs";
 import stockCache from "@/utils/stockCache"; // Correct path to cache
 
@@ -48,7 +47,12 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
         message: "Successful Login",
-        user: existingUser,
+        user: {
+          id: existingUser._id,
+          email: existingUser.email,
+          name: existingUser.name || "",
+          role: existingUser.role || "user",
+        },
       });
     } catch (error) {
       console.error(error);

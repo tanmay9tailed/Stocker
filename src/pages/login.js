@@ -1,10 +1,12 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CanvasRevealEffect } from "@/components/ui/canvas-reveal-effect";
 import Theme from "@/components/theme-changer";
-import axios from "axios";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -16,14 +18,19 @@ const Login = () => {
   const [errorMsg, setErrorMsg] = useState(null);
   const [mounted, setMounted] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+
+    // If session is present, redirect to homepage
+    if (session) {
+      router.push("/");
+    }
+  }, [session]);
 
   if (!mounted) return null;
 
-  // Handle form data changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -32,17 +39,21 @@ const Login = () => {
     });
   };
 
-  // Handle form submission
+  // Handle form submission with next-auth
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg(null);
-    try {
-      const res = await axios.post("/api/login", formData);
-      if (res.status === 200) {
-        router.push("/");
-      }
-    } catch (error) {
+
+    const res = await signIn("credentials", {
+      redirect: false, // Prevent automatic redirection
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (res?.error) {
       setErrorMsg("Invalid email or password.");
+    } else {
+      router.push("/");
     }
   };
 
